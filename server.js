@@ -1,7 +1,10 @@
 import express from "express";
 import { getUserByEmail, createUser } from "./db.js";
+import cors from "cors";
 
 const app = express();
+app.use(cors()); // Allows all origins
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
