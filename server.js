@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 
-app.post("/login", async (req, res) => {
+app.post("/isa-be/ISA_BE/login", async (req, res) => {
   console.log("Received login request:", req.body); // Debugging log
 
   const user = await getUserByEmail(req.body.email);
@@ -21,7 +21,7 @@ app.post("/login", async (req, res) => {
   res.json({ id: user.id, email: user.email });
 });
 
-app.post("/register", async (req, res) => {
+app.post("/isa-be/ISA_BE/register", async (req, res) => {
   const { email, password } = req.body;
   console.log("Received login request:", req.body); // Debugging log
 
