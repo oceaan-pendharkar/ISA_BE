@@ -58,9 +58,9 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
   }
 });
 
-app.post("/isa-be/ISA_BE/create-song", async (req, res) => {
-  const { activity, adjective1, adjective2 } = req.body;
-  console.log("Received song creation request:", req.body); // Debugging log
+app.get("/isa-be/ISA_BE/create-song", async (req, res) => {
+  const { activity, adjective1, adjective2 } = req.query; // Read from query params
+  console.log("Received song creation request:", req.query); // Debugging log
 
   if (!activity || !adjective1 || !adjective2) {
     return res.status(400).json({
@@ -75,6 +75,7 @@ app.post("/isa-be/ISA_BE/create-song", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 app.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
   try {
