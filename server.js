@@ -1,7 +1,9 @@
 import express from "express";
-import { getUserByEmail, createUser } from "./db.js";
 import cors from "cors";
 import bcrypt from "bcrypt";
+
+import { getUserByEmail, createUser } from "./db.js";
+import { generateSong } from "./song.js"; // Import function
 
 const app = express();
 app.use(cors()); // Allows all origins
@@ -50,6 +52,26 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
     res.status(500).json({ error: "Error creating user" });
   }
 });
+
+app.post("/create-song", async (req, res) => {
+  const { activity, adjective1, adjective2 } = req.body;
+  console.log("Received song creation request:", req.body); // Debugging log
+
+  if (!activity || !adjective1 || !adjective2) {
+    return res.status(400).json({
+      error: "Missing fields: need activity, adjective1, adjective2",
+    });
+  }
+
+  try {
+    const songData = await generateSong(activity, adjective1, adjective2);
+    res.json(songData);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/saved-song", async (req, res) => {});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
