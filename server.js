@@ -3,7 +3,7 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 
 import { getUserByEmail, createUser } from "./db.js";
-import { generateSong } from "./song.js"; // Import function
+import { generateSong, retrieveSong } from "./song.js"; // Import function
 
 const app = express();
 app.use(cors()); // Allows all origins
@@ -74,14 +74,22 @@ app.post("/isa-be/ISA_BE/create-song", async (req, res) => {
   }
 });
 
-app.post("/isa-be/ISA_BE/saved-song", async (req, res) => {
-  const fileName = req.body.fileName;
-  console.log("Received saved song request:", req.body);
+app.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
+  try {
+    const fileName = req.params.fileName;
 
-  if (!fileName) {
-    return res.status(400).json({
-      error: "Missing fileName property",
-    });
+    // Retrieve the file as a buffer
+    const songBuffer = await retrieveSong(fileName);
+
+    // Set the correct headers for WAV file
+    res.setHeader("Content-Type", "audio/wav");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+    // Send the file as a binary response
+    res.send(songBuffer);
+  } catch (err) {
+    console.error("Error sending song:", err.message);
+    res.status(404).json({ error: err.message });
   }
 });
 
