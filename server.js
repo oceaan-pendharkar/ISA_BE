@@ -21,8 +21,12 @@ app.post("/isa-be/ISA_BE/login", async (req, res) => {
   if (!user) return res.status(404).json({ error: "User not found" });
 
   // Check hashed password
-  const passwordCheck = await bcrypt.compare(req.body.password, user.password_hash);
-  if(!passwordCheck) return res.status(401).json({ error: "Invalid password"});
+  const passwordCheck = await bcrypt.compare(
+    req.body.password,
+    user.password_hash
+  );
+  if (!passwordCheck)
+    return res.status(401).json({ error: "Invalid password" });
 
   // Prints the bcypt hash
   console.log(user.password_hash);
@@ -47,7 +51,6 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
     const newUser = await createUser(email, password_hash);
     console.log("new user registered: ", newUser);
     res.json(newUser);
-
   } catch (err) {
     res.status(500).json({ error: "Error creating user" });
   }
@@ -71,7 +74,16 @@ app.post("/create-song", async (req, res) => {
   }
 });
 
-app.post("/saved-song", async (req, res) => {});
+app.post("/saved-song", async (req, res) => {
+  const fileName = req.body.fileName;
+  console.log("Received saved song request:", req.body);
+
+  if (!fileName) {
+    return res.status(400).json({
+      error: "Missing fileName property",
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
