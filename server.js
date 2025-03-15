@@ -56,7 +56,7 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
   }
 });
 
-app.post("/create-song", async (req, res) => {
+app.post("/isa-be/ISA_BE/create-song", async (req, res) => {
   const { activity, adjective1, adjective2 } = req.body;
   console.log("Received song creation request:", req.body); // Debugging log
 
@@ -74,7 +74,7 @@ app.post("/create-song", async (req, res) => {
   }
 });
 
-app.post("/saved-song", async (req, res) => {
+app.post("/isa-be/ISA_BE/saved-song", async (req, res) => {
   const fileName = req.body.fileName;
   console.log("Received saved song request:", req.body);
 
