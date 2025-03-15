@@ -35,25 +35,3 @@ export async function generateSong(activity, adjective1, adjective2) {
     throw new Error("Failed to generate song");
   }
 }
-
-/**
- * Retrieves a song file from the songs directory.
- * @param {string} fileName - The name of the song file.
- * @returns {Promise<Buffer>} - The file content as a buffer.
- */
-export async function retrieveSong(fileName) {
-  try {
-    const filePath = path.join(SONGS_DIR, fileName);
-
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      throw new Error("Song not found");
-    }
-
-    // Read the file and return it
-    return fs.promises.readFile(filePath);
-  } catch (error) {
-    console.error("Error retrieving song:", error.message);
-    throw new Error("Failed to retrieve song");
-  }
-}

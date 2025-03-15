@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 
 import { getUserByEmail, createUser } from "./db.js";
-import { generateSong, retrieveSong } from "./song.js"; // Import function
+import { generateSong } from "./song.js"; // Import function
 
 const app = express();
 app.use(cors()); // Allows all origins
@@ -75,7 +75,6 @@ app.get("/isa-be/ISA_BE/create-song", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 app.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
   try {
