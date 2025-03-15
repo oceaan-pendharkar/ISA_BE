@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
+import path from "path";
+import fs from "fs";
 
 import { getUserByEmail, createUser } from "./db.js";
 import { generateSong, retrieveSong } from "./song.js"; // Import function
@@ -77,19 +79,21 @@ app.post("/isa-be/ISA_BE/create-song", async (req, res) => {
 app.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
   try {
     const fileName = req.params.fileName;
+    const filePath = path.join("songs", fileName); // Adjust path if needed
 
-    // Retrieve the file as a buffer
-    const songBuffer = await retrieveSong(fileName);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "File not found" });
+    }
 
-    // Set the correct headers for WAV file
     res.setHeader("Content-Type", "audio/wav");
-    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
 
-    // Send the file as a binary response
-    res.send(songBuffer);
+    // Create a read stream and pipe it to the response
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
   } catch (err) {
-    console.error("Error sending song:", err.message);
-    res.status(404).json({ error: err.message });
+    console.error("Error streaming song:", err.message);
+    res.status(500).json({ error: "Failed to send song" });
   }
 });
 
