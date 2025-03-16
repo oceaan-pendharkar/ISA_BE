@@ -64,7 +64,7 @@ app.get("/isa-be/ISA_BE/create-song", async (req, res) => {
 
   if (!activity || !adjective1 || !adjective2) {
     return res.status(400).json({
-      error: "Missing fields. Need activity, adjective1, adjective2",
+      error: "Missing fields!! Need activity, adjective1, adjective2",
     });
   }
 
