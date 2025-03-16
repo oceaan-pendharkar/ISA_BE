@@ -19,7 +19,7 @@ export async function getUserByEmail(email) {
   try {
     const client = await pool.connect();
     const query =
-      "SELECT id, email, password_hash FROM users WHERE LOWER(email) = LOWER($1)";
+      "SELECT id, email, password_hash, role FROM users WHERE LOWER(email) = LOWER($1)";
     const { rows } = await client.query(query, [email]);
     client.release();
     return rows.length > 0 ? rows[0] : null;
