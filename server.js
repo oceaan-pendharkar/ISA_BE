@@ -34,7 +34,7 @@ app.post("/isa-be/ISA_BE/login", async (req, res) => {
   console.log(user.password_hash);
 
   console.log("Login successful for:", user.email); // Debugging log
-  res.json({ id: user.id, email: user.email });
+  res.json({ id: user.id, email: user.email, role: user.role });
 });
 
 // Register a new user
