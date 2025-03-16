@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 
 import { getUserByEmail, createUser } from "./db.js";
-import { generateSong } from "./song.js"; // Import function
+import { generateSong, saveSongToDatabase, SONGS_DIR } from "./song.js"; // Import function
 
 const app = express();
 app.use(cors()); // Allows all origins
@@ -58,20 +58,41 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
   }
 });
 
+// Generate a song based on user input
 app.get("/isa-be/ISA_BE/create-song", async (req, res) => {
-  const { activity, adjective1, adjective2 } = req.query; // Read from query params
-  console.log("Received song creation request:", req.query); // Debugging log
-
-  if (!activity || !adjective1 || !adjective2) {
-    return res.status(400).json({
-      error: "Missing fields!! Need activity, adjective1, adjective2",
-    });
-  }
-
   try {
-    const songData = await generateSong(activity, adjective1, adjective2);
-    res.json(songData);
+    const { activity, adjective1, adjective2 } = req.query;
+
+    if (!activity || !adjective1 || !adjective2) {
+      return res.status(400).json({
+        error: "Missing fields: need activity, adjective1, adjective2",
+      });
+    }
+
+    console.log("Received song creation request:", {
+      activity,
+      adjective1,
+      adjective2,
+    });
+
+    // Call song generation function
+    const songBuffer = await generateSong(activity, adjective1, adjective2);
+
+    // Save song & get metadata
+    const songDetails = await saveSongToDatabase(songBuffer);
+
+    // Set headers for streaming
+    res.setHeader("Content-Type", "audio/wav");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${songDetails.fileName}"`
+    );
+    res.setHeader("X-Song-ID", songDetails.id);
+
+    // Send the saved file
+    res.sendFile(path.join(SONGS_DIR, songDetails.fileName));
   } catch (err) {
+    console.error("Error generating song:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
