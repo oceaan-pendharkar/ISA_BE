@@ -13,7 +13,7 @@ import { authenticateUser } from "./auth.js";
 const app = express();
 app.use(
   cors({
-    origin: "https://isa-fe-252363189851.us-central1.run.app/", // Replace with your frontend URL
+    origin: "https://isa-fe-252363189851.us-central1.run.app", // Replace with your frontend URL
     credentials: true, // Allows cookies to be sent
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
