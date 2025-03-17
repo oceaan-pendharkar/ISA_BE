@@ -3,24 +3,30 @@ import cors from "cors";
 import bcrypt from "bcrypt";
 import path from "path";
 import fs from "fs";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 
 import { getUserByEmail, createUser } from "./db.js";
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "./song.js"; // Import function
+import { authenticateUser } from "./auth.js";
 
 const app = express();
 app.use(
   cors({
     origin: "https://isa-fe-252363189851.us-central1.run.app/", // Replace with your frontend URL
     credentials: true, // Allows cookies to be sent
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 const PORT = process.env.PORT || 3001;
+const SECRET_KEY = "RvDb1Nab4sdhNEFhtOYnMBxQRW1x44MZshXCCd9DuAQ="; // secret key
+
 const saltRounds = 12;
 
 app.use(express.json());
+app.use(cookieParser()); // Middleware to parse cookies
 
 // Login an existing user
 app.post("/isa-be/ISA_BE/login", async (req, res) => {
@@ -41,6 +47,24 @@ app.post("/isa-be/ISA_BE/login", async (req, res) => {
   console.log(user.password_hash);
 
   console.log("Login successful for:", user.email); // Debugging log
+
+  // Generate JWT token
+  const token = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    SECRET_KEY,
+    {
+      expiresIn: "1h", // Token expires in 1 hour
+    }
+  );
+
+  // Set the token in an HTTP-only, Secure cookie
+  res.cookie("authToken", token, {
+    httpOnly: true, // Prevents JavaScript access (XSS protection)
+    secure: true, // Ensures cookie is only sent over HTTPS
+    sameSite: "Strict", // Prevents CSRF attacks
+    maxAge: 60 * 60 * 1000, // 1 hour expiry
+  });
+
   res.json({ id: user.id, email: user.email, role: user.role });
 });
 
@@ -66,7 +90,8 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
 });
 
 // Generate a song based on user input
-app.get("/isa-be/ISA_BE/create-song", async (req, res) => {
+// uses the authenticateUser middleware to check for a valid token
+app.get("/isa-be/ISA_BE/create-song", authenticateUser, async (req, res) => {
   try {
     const { activity, adjective1, adjective2 } = req.query;
 
