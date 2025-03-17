@@ -2,6 +2,7 @@ export const SECRET_KEY = "RvDb1Nab4sdhNEFhtOYnMBxQRW1x44MZshXCCd9DuAQ="; // sec
 
 export const authenticateUser = (req, res, next) => {
   const token = req.cookies.authToken; // Get token from cookie
+  console.log("token: ", token);
 
   if (!token) return res.status(401).json({ error: "Unauthorized" });
 

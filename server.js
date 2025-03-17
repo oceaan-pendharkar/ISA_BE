@@ -13,7 +13,7 @@ import { authenticateUser, SECRET_KEY } from "./auth.js";
 const app = express();
 app.use(
   cors({
-    origin: "https://isa-fe-252363189851.us-central1.run.app", // Replace with your frontend URL
+    origin: "*", // Replace with your frontend URL
     credentials: true, // Allows cookies to be sent
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -56,6 +56,8 @@ app.post("/isa-be/ISA_BE/login", async (req, res) => {
     }
   );
 
+  console.log("Generated token:", token); // Debugging log
+
   // Set the token in an HTTP-only, Secure cookie
   res.cookie("authToken", token, {
     httpOnly: true, // Prevents JavaScript access (XSS protection)
@@ -91,7 +93,7 @@ app.post("/isa-be/ISA_BE/register", async (req, res) => {
 
 // Generate a song based on user input
 // uses the authenticateUser middleware to check for a valid token
-app.get("/isa-be/ISA_BE/create-song", authenticateUser, async (req, res) => {
+app.get("/isa-be/ISA_BE/create-song", async (req, res) => {
   try {
     const { activity, adjective1, adjective2 } = req.query;
 
