@@ -61,7 +61,8 @@ app.post("/isa-be/ISA_BE/login", async (req, res) => {
   res.cookie("authToken", token, {
     httpOnly: true, // Prevents JavaScript access (XSS protection)
     secure: true, // Ensures cookie is only sent over HTTPS
-    sameSite: "Strict", // Prevents CSRF attacks
+    sameSite: "None", // necessary for cross-origin cookies
+    path: "/",
     maxAge: 60 * 60 * 1000, // 1 hour expiry
   });
 
