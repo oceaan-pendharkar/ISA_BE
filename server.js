@@ -8,7 +8,7 @@ import cookieParser from "cookie-parser";
 
 import { getUserByEmail, createUser } from "./db.js";
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "./song.js"; // Import function
-import { authenticateUser } from "./auth.js";
+import { authenticateUser, SECRET_KEY } from "./auth.js";
 
 const app = express();
 app.use(
@@ -21,7 +21,6 @@ app.use(
 );
 
 const PORT = process.env.PORT || 3001;
-const SECRET_KEY = "RvDb1Nab4sdhNEFhtOYnMBxQRW1x44MZshXCCd9DuAQ="; // secret key
 
 const saltRounds = 12;
 

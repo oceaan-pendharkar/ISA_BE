@@ -1,3 +1,5 @@
+export const SECRET_KEY = "RvDb1Nab4sdhNEFhtOYnMBxQRW1x44MZshXCCd9DuAQ="; // secret key
+
 export const authenticateUser = (req, res, next) => {
   const token = req.cookies.authToken; // Get token from cookie
 
