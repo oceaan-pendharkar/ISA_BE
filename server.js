@@ -8,7 +8,14 @@ import { getUserByEmail, createUser } from "./db.js";
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "./song.js"; // Import function
 
 const app = express();
-app.use(cors()); // Allows all origins
+app.use(
+  cors({
+    origin: "https://isa-fe-252363189851.us-central1.run.app/", // Replace with your frontend URL
+    credentials: true, // Allows cookies to be sent
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 const PORT = process.env.PORT || 3001;
 const saltRounds = 12;
