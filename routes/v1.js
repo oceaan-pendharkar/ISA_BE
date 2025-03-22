@@ -4,13 +4,9 @@ import bcrypt from "bcrypt";
 import path from "path";
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import { getUserByEmail, createUser } from "../Auth-BE/db.js";
-import {
-  generateSong,
-  saveSongToDatabase,
-  SONGS_DIR,
-} from "../Auth-BE/song.js";
-import { authenticateUser } from "../Auth-BE/auth.js";
+import { getUserByEmail, createUser } from "../db.js";
+import { generateSong, saveSongToDatabase, SONGS_DIR } from "../song.js";
+import { authenticateUser } from "../auth.js";
 
 const router = express.Router();
 const saltRounds = 12;
