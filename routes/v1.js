@@ -4,7 +4,18 @@ import bcrypt from "bcrypt";
 import path from "path";
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import { getUserByEmail, createUser } from "../db.js";
+import {
+  getUserByEmail,
+  createUser,
+  fetchActivities,
+  fetchAdjectives,
+  addActivity,
+  addAdjective,
+  deleteActivityByName,
+  deleteAdjectiveByWord,
+  updateActivity,
+  updateAdjective,
+} from "../db.js";
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "../song.js";
 import { authenticateUser } from "../auth.js";
 
@@ -133,6 +144,106 @@ router.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
   } catch (err) {
     console.error("Error streaming song:", err.message);
     res.status(500).json({ error: "Failed to send song" });
+  }
+});
+
+// Get all activities
+router.get("/isa-be/ISA_BE/activities", async (req, res) => {
+  try {
+    const activities = await fetchActivities();
+    res.json(activities);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch activities" });
+  }
+});
+
+// Add an activity
+router.post("/isa-be/ISA_BE/activities", async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Missing activity name" });
+
+  try {
+    const newActivity = await addActivity(name);
+    res.status(201).json(newActivity);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to add activity" });
+  }
+});
+
+// Delete activity by name
+router.delete("/isa-be/ISA_BE/activities", async (req, res) => {
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Missing activity name" });
+
+  try {
+    await deleteActivityByName(name);
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete activity" });
+  }
+});
+
+// Update activity by ID
+router.patch("/isa-be/ISA_BE/activities/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ error: "Missing new name" });
+
+  try {
+    const updated = await updateActivity(id, name);
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update activity" });
+  }
+});
+
+// Get all adjectives
+router.get("/isa-be/ISA_BE/adjectives", async (req, res) => {
+  try {
+    const adjectives = await fetchAdjectives();
+    res.json(adjectives);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch adjectives" });
+  }
+});
+
+// Add an adjective
+router.post("/isa-be/ISA_BE/adjectives", async (req, res) => {
+  const { word } = req.body;
+  if (!word) return res.status(400).json({ error: "Missing adjective word" });
+
+  try {
+    const newAdjective = await addAdjective(word);
+    res.status(201).json(newAdjective);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to add adjective" });
+  }
+});
+
+// Delete adjective by word
+router.delete("/isa-be/ISA_BE/adjectives", async (req, res) => {
+  const { word } = req.body;
+  if (!word) return res.status(400).json({ error: "Missing adjective word" });
+
+  try {
+    await deleteAdjectiveByWord(word);
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete adjective" });
+  }
+});
+
+// Update adjective by ID
+router.patch("/isa-be/ISA_BE/adjectives/:id", async (req, res) => {
+  const { id } = req.params;
+  const { word } = req.body;
+  if (!word) return res.status(400).json({ error: "Missing new word" });
+
+  try {
+    const updated = await updateAdjective(id, word);
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update adjective" });
   }
 });
 
