@@ -1,4 +1,4 @@
-// routes/v1.js
+//ChatGPT was used to assist with this file
 import express from "express";
 import bcrypt from "bcrypt";
 import path from "path";
@@ -78,9 +78,14 @@ const saltRounds = 12;
 // Login
 router.post("/isa-be/ISA_BE/login", async (req, res) => {
   console.log("Received login request:", req.body); // Debugging log
-
-  const user = await getUserByEmail(req.body.email);
-  if (!user) return res.status(404).json({ error: messages.userNotFound }); 
+  let user;
+  try {
+    user = await getUserByEmail(req.body.email);
+    console.log("user: " + user);
+    if (!user) return res.status(404).json({ error: "User not found" });
+  } catch (err) {
+    return res.status(500).json("Error logging in user");
+  }
 
   // Check hashed password
   const passwordCheck = await bcrypt.compare(

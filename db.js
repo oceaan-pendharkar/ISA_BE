@@ -1,5 +1,7 @@
+//ChatGPT was used to assist with this file
 import dotenv from "dotenv";
 import pkg from "pg";
+import { validateEmail, validateInput } from "./input.js";
 
 dotenv.config();
 
@@ -17,6 +19,8 @@ const pool = new Pool({
  */
 export async function getUserByEmail(email) {
   try {
+    validateEmail(email);
+    validateInput(email);
     const client = await pool.connect();
     const query =
       "SELECT id, email, password_hash, role FROM users WHERE LOWER(email) = LOWER($1)";
