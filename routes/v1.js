@@ -80,6 +80,7 @@ const saltRounds = 12;
 // Login
 router.post("/isa-be/ISA_BE/login", async (req, res) => {
   console.log("Received login request:", req.body); // Debugging log
+    // increment_endpoint_usage(decoded.email, "/isa-be/ISA_BE/login", http_methods.POST)
 
   const user = await getUserByEmail(req.body.email);
   if (!user) return res.status(404).json({ error: "User not found" });
@@ -165,6 +166,8 @@ router.post("/isa-be/ISA_BE/login", async (req, res) => {
  */
 // Register
 router.post("/isa-be/ISA_BE/register", async (req, res) => {
+    // increment_endpoint_usage(decoded.email, "/isa-be/ISA_BE/register", http_methods.POST)
+
   const { email, password } = req.body;
   console.log("Received login request:", req.body); // Debugging log
 
@@ -239,6 +242,7 @@ router.get("/isa-be/ISA_BE/create-song", async (req, res) => {
     } catch (err){
       return res.status(401).send('unauthorized');
     }
+      // increment_endpoint_usage(decoded.email, "/isa-be/ISA_BE/create-song", http_methods.GET)
 
     const { activity, adjective1, adjective2 } = req.query;
 
@@ -308,6 +312,8 @@ router.get("/isa-be/ISA_BE/create-song", async (req, res) => {
 // Serve songs
 router.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/songs/:fileName", http_methods.GET)
+
     const fileName = req.params.fileName;
     const filePath = path.join("songs", fileName); // Adjust path if needed
 
@@ -354,6 +360,8 @@ router.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
 // Get all activities
 router.get("/isa-be/ISA_BE/activities", async (req, res) => {
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/activities", http_methods.GET)
+
     const activities = await fetchActivities();
     res.json(activities);
   } catch (err) {
@@ -402,6 +410,8 @@ router.post("/isa-be/ISA_BE/activities", async (req, res) => {
   if (!name) return res.status(400).json({ error: "Missing activity name" });
 
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/activities", http_methods.POST)
+
     const newActivity = await addActivity(name);
     res.status(201).json(newActivity);
   } catch (err) {
@@ -441,6 +451,8 @@ router.delete("/isa-be/ISA_BE/activities", async (req, res) => {
   if (!name) return res.status(400).json({ error: "Missing activity name" });
 
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/activities", http_methods.DELETE)
+
     await deleteActivityByName(name);
     res.status(204).end();
   } catch (err) {
@@ -500,6 +512,8 @@ router.patch("/isa-be/ISA_BE/activities/:id", async (req, res) => {
   if (!name) return res.status(400).json({ error: "Missing new name" });
 
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/activities/:id", http_methods.PATCH)
+
     const updated = await updateActivity(id, name);
     res.json(updated);
   } catch (err) {
@@ -536,6 +550,8 @@ router.patch("/isa-be/ISA_BE/activities/:id", async (req, res) => {
 // Get all adjectives
 router.get("/isa-be/ISA_BE/adjectives", async (req, res) => {
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/adjectives", http_methods.GET)
+
     const adjectives = await fetchAdjectives();
     res.json(adjectives);
   } catch (err) {
@@ -587,6 +603,8 @@ router.post("/isa-be/ISA_BE/adjectives", async (req, res) => {
   if (!word) return res.status(400).json({ error: "Missing adjective word" });
 
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/adjectives", http_methods.POST)
+
     const newAdjective = await addAdjective(word);
     res.status(201).json(newAdjective);
   } catch (err) {
@@ -627,6 +645,8 @@ router.delete("/isa-be/ISA_BE/adjectives", async (req, res) => {
   if (!word) return res.status(400).json({ error: "Missing adjective word" });
 
   try {
+      // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/adjectives", http_methods.DELETE)
+
     await deleteAdjectiveByWord(word);
     res.status(204).end();
   } catch (err) {
@@ -686,6 +706,8 @@ router.patch("/isa-be/ISA_BE/adjectives/:id", async (req, res) => {
   if (!word) return res.status(400).json({ error: "Missing new word" });
 
   try {
+    // increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/adjectives/:id", http_methods.PATCH)
+
     const updated = await updateAdjective(id, word);
     res.json(updated);
   } catch (err) {
@@ -704,11 +726,11 @@ router.get("/isa-be/ISA_BE/endpoint_history", async (req, res) => {
     } catch (err){
       return res.status(401).send('unauthorized');
     }
+    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/endpoint_history", http_methods.GET)
 
     const data = await get_endpoint_usage();
     res.status(200).json(data);
 
-    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/endpoint_history", http_methods.GET)
   } catch (err){
     console.error("Error acquiring endpoint data:", err.message);
     res.status(500).json({ error: "Failed to acquire endpoint usage data" });
@@ -726,11 +748,11 @@ router.get("/isa-be/ISA_BE/user_endpoint_history", async (req, res) => {
     } catch (err){
       return res.status(401).send('unauthorized');
     }
-    
+    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/user_endpoint_history", http_methods.GET)
+
     const data = await get_user_endpoint_usage(decoded.email);
     res.status(200).json(data);
 
-    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/user_endpoint_history", http_methods.GET)
   } catch (err){
     console.error("Error acuiring endpoint data:", err.message);
     res.status(500).json({ error: "Failed to acquire endpoint usage data" });
