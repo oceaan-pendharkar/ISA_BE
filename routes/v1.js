@@ -15,6 +15,10 @@ import {
   deleteAdjectiveByWord,
   updateActivity,
   updateAdjective,
+  increment_endpoint_usage,
+  get_endpoint_usage,
+  get_user_endpoint_usage,
+  http_methods
 } from "../db.js";
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "../song.js";
 import { authenticateUser } from "../auth.js";
@@ -722,10 +726,8 @@ router.get("/isa-be/ISA_BE/user_endpoint_history", async (req, res) => {
     } catch (err){
       return res.status(401).send('unauthorized');
     }
-
-    const cookie_header = req.headers.cookie;
-    const cookies = cookie_header.split('; ');
-    const data = await get_user_endpoint_usage();
+    
+    const data = await get_user_endpoint_usage(decoded.email);
     res.status(200).json(data);
 
     increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/user_endpoint_history", http_methods.GET)

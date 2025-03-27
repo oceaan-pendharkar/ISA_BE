@@ -246,10 +246,10 @@ export async function get_endpoint_usage(){
   try {
     const client = await pool.connect();
     const query = 
-    `SELECT COUNT(user_statistics.id), path, method FROM user_statistics 
-    FULL JOIN endpoints ON user_statistics.endpoint_id=endpoints.id
-    FULL JOIN request_methods ON user_statistics.request_method_id=request_methods.id
-    GROUP BY request_method_id;`;
+    `SELECT COUNT(user_statistics.id), endpoints.path, request_methods.method FROM user_statistics 
+    FULL OUTER JOIN endpoints ON user_statistics.endpoint_id=endpoints.id
+    FULL OUTER JOIN request_methods ON user_statistics.request_method_id=request_methods.id
+    GROUP BY endpoints.path, request_methods.method`;
     const { rows } = await client.query(query);
     client.release();
     return rows;
@@ -294,13 +294,11 @@ export async function get_user_endpoint_usage(user_email){
  */
 export async function increment_endpoint_usage(user_email, endpoint, method){
   try {
-    console.log(user_email);
-    console.log(endpoint);
-    console.log(method);
     const client = await pool.connect();
     //Get endpoint id
     const endpoint_id_query = "SELECT id FROM endpoints WHERE path LIKE $1;";
     let endpoint_id = await client.query(endpoint_id_query, [endpoint])
+    // console.log(endpoint_id['rows'])
     endpoint_id = endpoint_id['rows'][0].id;
 
     //Get method id
