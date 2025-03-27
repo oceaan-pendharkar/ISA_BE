@@ -672,4 +672,47 @@ router.patch("/isa-be/ISA_BE/adjectives/:id", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /isa-be/ISA_BE/logout:
+ *   post:
+ *     summary: Log out the user by clearing the auth token cookie
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       200:
+ *         description: Logout successful, token cleared
+ *         headers:
+ *           Set-Cookie:
+ *            description: Clear the HTTP-only auth token cookie (authToken)
+ *            schema:
+ *              type: string
+ *            example: authToken=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *       401:
+ *         description: No active session
+ */
+// Login
+router.post("/isa-be/ISA_BE/logout", async (req, res) => {
+  console.log("Received logout request:", req.body); // Debugging log
+
+  // Clear the cookie
+  res.clearCookie("authToken", {
+    httpOnly: true, // Prevents JavaScript access (XSS protection)
+    secure: true, // Ensures cookie is only sent over HTTPS
+    sameSite: "None", // necessary for cross-origin cookies
+    path: "/",
+  });
+
+  console.log("Logout successful"); // Debugging log
+
+});
+
 export default router;
