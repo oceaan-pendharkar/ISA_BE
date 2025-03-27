@@ -249,6 +249,8 @@ export async function get_endpoint_usage(){
     `SELECT COUNT(user_statistics.id), endpoints.path, request_methods.method FROM user_statistics 
     FULL OUTER JOIN endpoints ON user_statistics.endpoint_id=endpoints.id
     FULL OUTER JOIN request_methods ON user_statistics.request_method_id=request_methods.id
+    WHERE user_statistics.endpoint_id IS NOT NULL
+    AND user_statistics.request_method_id IS NOT NULL
     GROUP BY endpoints.path, request_methods.method`;
     const { rows } = await client.query(query);
     client.release();
