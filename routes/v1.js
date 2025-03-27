@@ -699,7 +699,7 @@ router.patch("/isa-be/ISA_BE/adjectives/:id", async (req, res) => {
  *       401:
  *         description: No active session
  */
-// Login
+// Logout
 router.post("/isa-be/ISA_BE/logout", async (req, res) => {
   console.log("Received logout request:", req.body); // Debugging log
 
@@ -712,7 +712,28 @@ router.post("/isa-be/ISA_BE/logout", async (req, res) => {
   });
 
   console.log("Logout successful"); // Debugging log
+  res.status(200).json({ success: true });
+});
 
+// Sends list of available endpoints to client
+// List of all available endpoints (for client use or API stats)
+router.get("/isa-be/ISA_BE/endpoints", (req, res) => {
+  const endpoints = [
+    { method: "POST", path: "/isa-be/ISA_BE/login" },
+    { method: "POST", path: "/isa-be/ISA_BE/register" },
+    { method: "POST", path: "/isa-be/ISA_BE/logout" },
+    { method: "GET", path: "/isa-be/ISA_BE/create-song" },
+    { method: "GET", path: "/isa-be/ISA_BE/songs/:fileName" },
+    { method: "GET", path: "/isa-be/ISA_BE/activities" },
+    { method: "POST", path: "/isa-be/ISA_BE/activities" },
+    { method: "DELETE", path: "/isa-be/ISA_BE/activities" },
+    { method: "PATCH", path: "/isa-be/ISA_BE/activities/:id" },
+    { method: "GET", path: "/isa-be/ISA_BE/adjectives" },
+    { method: "POST", path: "/isa-be/ISA_BE/adjectives" },
+    { method: "DELETE", path: "/isa-be/ISA_BE/adjectives" },
+    { method: "PATCH", path: "/isa-be/ISA_BE/adjectives/:id" },
+  ];
+  res.json({ endpoints });
 });
 
 export default router;
