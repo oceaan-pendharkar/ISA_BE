@@ -18,7 +18,9 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.14.0",
-    "ph": "^0.1.10"
+    "ph": "^0.1.10",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "description": "",
   "type": "module"
