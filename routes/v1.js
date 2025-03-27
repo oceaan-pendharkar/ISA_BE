@@ -715,8 +715,33 @@ router.post("/isa-be/ISA_BE/logout", async (req, res) => {
   res.status(200).json({ success: true });
 });
 
-// Sends list of available endpoints to client
-// List of all available endpoints (for client use or API stats)
+/**
+ * @swagger
+ * /isa-be/ISA_BE/endpoints:
+ *   get:
+ *     summary: Get a list of all available API endpoints
+ *     tags:
+ *       - Metadata
+ *     responses:
+ *       200:
+ *         description: Returns an array of available API endpoints and methods
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 endpoints:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       method:
+ *                         type: string
+ *                         example: GET
+ *                       path:
+ *                         type: string
+ *                         example: /isa-be/ISA_BE/activities
+ */
 router.get("/isa-be/ISA_BE/endpoints", (req, res) => {
   const endpoints = [
     { method: "POST", path: "/isa-be/ISA_BE/login" },
