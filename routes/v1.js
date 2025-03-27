@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import path from "path";
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import { getUserByEmail, createUser } from "../db.js";
+import { http_methods, getUserByEmail, createUser, get_endpoint_usage, get_user_endpoint_usage, increment_endpoint_usage } from "../db.js";
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "../song.js";
 import { authenticateUser } from "../auth.js";
 
@@ -52,6 +52,8 @@ router.post("/isa-be/ISA_BE/login", async (req, res) => {
   });
 
   res.json({ id: user.id, email: user.email, role: user.role });
+
+  increment_endpoint_usage(user.email, "/api/v1/isa-be/ISA_BE/login", http_methods.POST)
 });
 
 // Register
@@ -70,6 +72,8 @@ router.post("/isa-be/ISA_BE/register", async (req, res) => {
     const newUser = await createUser(email, password_hash);
     console.log("new user registered: ", newUser);
     res.json(newUser);
+
+    increment_endpoint_usage(email, "/api/v1/isa-be/ISA_BE/register", http_methods.POST)
   } catch (err) {
     res.status(500).json({ error: "Error creating user" });
   }
@@ -78,6 +82,18 @@ router.post("/isa-be/ISA_BE/register", async (req, res) => {
 // Create song
 router.get("/isa-be/ISA_BE/create-song", async (req, res) => {
   try {
+    //Getting cookei and jwt info
+    // const cookie_header = req.headers.cookie;
+    // const cookies = cookie_header.split('; ');
+    let decoded;
+    try{
+      const usertoken = req.headers.authorization;
+      const token = usertoken.split(' ');
+      decoded = jwt.verify(token[1], process.env.SECRET_KEY);
+    } catch (err){
+      return res.status(401).send('unauthorized');
+    }
+
     const { activity, adjective1, adjective2 } = req.query;
 
     if (!activity || !adjective1 || !adjective2) {
@@ -108,6 +124,8 @@ router.get("/isa-be/ISA_BE/create-song", async (req, res) => {
 
     // Send the saved file
     res.sendFile(path.join(SONGS_DIR, songDetails.fileName));
+
+    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/create-song", http_methods.GET)
   } catch (err) {
     console.error("Error generating song:", err.message);
     res.status(500).json({ error: err.message });
@@ -133,6 +151,52 @@ router.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
   } catch (err) {
     console.error("Error streaming song:", err.message);
     res.status(500).json({ error: "Failed to send song" });
+  }
+});
+
+//Serve endpoint history
+router.get("/isa-be/ISA_BE/endpoint_history", async (req, res) => {
+  try {
+    let decoded;
+    try{
+      const usertoken = req.headers.cookie;
+      const token = usertoken.split(' ');
+      decoded = jwt.verify(token[0].split('=')[1], process.env.SECRET_KEY);
+    } catch (err){
+      return res.status(401).send('unauthorized');
+    }
+
+    const data = await get_endpoint_usage();
+    res.status(200).json(data);
+
+    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/endpoint_history", http_methods.GET)
+  } catch (err){
+    console.error("Error acquiring endpoint data:", err.message);
+    res.status(500).json({ error: "Failed to acquire endpoint usage data" });
+  }
+});
+
+//Serve endpoint history
+router.get("/isa-be/ISA_BE/user_endpoint_history", async (req, res) => {
+  try {
+    let decoded;
+    try{
+      const usertoken = req.headers.cookie;
+      const token = usertoken.split(' ');
+      decoded = jwt.verify(token[0].split('=')[1], process.env.SECRET_KEY);
+    } catch (err){
+      return res.status(401).send('unauthorized');
+    }
+
+    const cookie_header = req.headers.cookie;
+    const cookies = cookie_header.split('; ');
+    const data = await get_user_endpoint_usage();
+    res.status(200).json(data);
+
+    increment_endpoint_usage(decoded.email, "/api/v1/isa-be/ISA_BE/user_endpoint_history", http_methods.GET)
+  } catch (err){
+    console.error("Error acuiring endpoint data:", err.message);
+    res.status(500).json({ error: "Failed to acquire endpoint usage data" });
   }
 });
 

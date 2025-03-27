@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import v1Routes from "./routes/v1.js";
-
 const app = express();
 app.use(
   cors({
