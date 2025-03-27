@@ -2,7 +2,21 @@
 
 export function validateInput(input) {
   console.log("validating: " + input);
-  //   throw new Error();
+
+  if (typeof input !== "string") {
+    throw new Error("Invalid input type.");
+  }
+
+  // Basic SQL injection prevention regex
+  // The symbols at the end are for single line comment, multiline comments, ; and ' (common used symbols in SQL)
+  const sqlInjectionRegex =
+    /(\b(SELECT|INSERT|DELETE|UPDATE|DROP|ALTER|CREATE|UNION|EXEC|MERGE|HAVING|TRUNCATE)\b)|(--|\/\*|\*\/|;|')/gi;
+
+  // Block suspicious patterns
+  if (sqlInjectionRegex.test(input)) {
+    // generic error thrown for security reasons
+    throw new Error();
+  }
 }
 
 export function validateEmail(email) {
@@ -10,5 +24,21 @@ export function validateEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     throw new Error("Invalid email format.");
+  }
+}
+
+export function validateWord(word) {
+  console.log("validating word: " + word);
+  const wordRegex = /[a-zA-Z]+/;
+  if (!wordRegex.test(email)) {
+    throw new Error("Invalid word format.");
+  }
+}
+
+export function validateNumber(num) {
+  console.log("validating number: " + num);
+  const numRegex = /[0-9]+/;
+  if (!numRegex.test(num)) {
+    throw new Error("Invalid number format.");
   }
 }

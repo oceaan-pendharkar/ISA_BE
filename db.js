@@ -1,7 +1,12 @@
 //ChatGPT was used to assist with this file
 import dotenv from "dotenv";
 import pkg from "pg";
-import { validateEmail, validateInput } from "./input.js";
+import {
+  validateEmail,
+  validateInput,
+  validateNumber,
+  validateWord,
+} from "./input.js";
 
 dotenv.config();
 
@@ -41,6 +46,9 @@ export async function getUserByEmail(email) {
  */
 export async function createUser(email, password_hash) {
   try {
+    validateEmail(email);
+    validateInput(email);
+    validateInput(password_hash);
     const client = await pool.connect();
     const query =
       "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email";
@@ -115,6 +123,8 @@ export async function fetchAdjectives() {
  */
 export async function addActivity(name) {
   try {
+    validateWord(name);
+    validateInput(name);
     const client = await pool.connect();
     const query = "INSERT INTO activities (name) VALUES ($1) RETURNING *";
     const { rows } = await client.query(query, [name]);
@@ -138,6 +148,8 @@ export async function addActivity(name) {
  */
 export async function addAdjective(word) {
   try {
+    validateWord(word);
+    validateInput(word);
     const client = await pool.connect();
     const query = "INSERT INTO adjectives (word) VALUES ($1) RETURNING *";
     const { rows } = await client.query(query, [word]);
@@ -158,6 +170,8 @@ export async function addAdjective(word) {
  */
 export async function deleteActivityByName(name) {
   try {
+    validateWord(name);
+    validateInput(name);
     const client = await pool.connect();
     await client.query("DELETE FROM activities WHERE name = $1", [name]);
     client.release();
@@ -176,6 +190,8 @@ export async function deleteActivityByName(name) {
  */
 export async function deleteAdjectiveByWord(word) {
   try {
+    validateWord(word);
+    validateInput(word);
     const client = await pool.connect();
     await client.query("DELETE FROM adjectives WHERE word = $1", [word]);
     client.release();
@@ -198,6 +214,10 @@ export async function deleteAdjectiveByWord(word) {
  */
 export async function updateActivity(id, newName) {
   try {
+    validateNumber(id);
+    validateWord(newName);
+    validateInput(id);
+    validateInput(newName);
     const client = await pool.connect();
     const query = "UPDATE activities SET name = $1 WHERE id = $2 RETURNING *";
     const { rows } = await client.query(query, [newName, id]);
@@ -222,6 +242,10 @@ export async function updateActivity(id, newName) {
  */
 export async function updateAdjective(id, newWord) {
   try {
+    validateNumber(id);
+    validateWord(newWord);
+    validateInput(id);
+    validateInput(newWord);
     const client = await pool.connect();
     const query = "UPDATE adjectives SET word = $1 WHERE id = $2 RETURNING *";
     const { rows } = await client.query(query, [newWord, id]);
