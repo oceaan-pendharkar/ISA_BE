@@ -21,6 +21,11 @@ export function validateInput(input) {
 
 export function validateEmail(email) {
   console.log("validating email: " + email);
+  //starts with one or more chars that are not space or @
+  //contains @ after that
+  //then has another 1+ non space or @ chars
+  //then has a . (dot)
+  //then ends with 1 or more chars that are not space or @
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     throw new Error("Invalid email format.");
