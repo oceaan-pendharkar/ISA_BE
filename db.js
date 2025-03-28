@@ -221,6 +221,14 @@ export async function updateActivity(id, newName) {
     const query = "UPDATE activities SET name = $1 WHERE id = $2 RETURNING *";
     const { rows } = await client.query(query, [newName, id]);
     client.release();
+    // Check if any rows were updated
+    if (rows.length === 0) {
+      const notFoundError = new Error(
+        "Adjective not found or no changes made."
+      );
+      notFoundError.code = "NO_ROWS_UPDATED"; // Custom error code
+      throw notFoundError;
+    }
     return rows[0];
   } catch (err) {
     console.error("Error updating activity:", err);
@@ -249,6 +257,14 @@ export async function updateAdjective(id, newWord) {
     const query = "UPDATE adjectives SET word = $1 WHERE id = $2 RETURNING *";
     const { rows } = await client.query(query, [newWord, id]);
     client.release();
+    // Check if any rows were updated
+    if (rows.length === 0) {
+      const notFoundError = new Error(
+        "Adjective not found or no changes made."
+      );
+      notFoundError.code = "NO_ROWS_UPDATED"; // Custom error code
+      throw notFoundError;
+    }
     return rows[0];
   } catch (err) {
     console.error("Error updating adjective:", err);

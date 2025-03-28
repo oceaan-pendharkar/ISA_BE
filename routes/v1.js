@@ -481,7 +481,9 @@ router.delete("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) =>
  *                   type: string
  *                   example: Dancing
  *       400:
- *         description: Missing new name
+ *         description: Missing new name or new name already exists
+ *       404:
+ *         description: activity not found or no changes made
  *       500:
  *         description: Failed to update activity
  */
@@ -495,7 +497,15 @@ router.patch("/isa-be/ISA_BE/activities/:id", authenticateUser, async (req, res)
     const updated = await updateActivity(id, name);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: messages.updateActFailed });
+    //23505 is a postgres error code for duplicate entry
+    if (err.code === "23505") {
+      // Duplicate entry error
+      res.status(400).json({ error: "Activity already exists" });
+    } else if (err.code === "NO_ROWS_UPDATED") {
+      res.status(404).json({ error: "Activity not found or no changes made" });
+    } else {
+      res.status(500).json({ error: messages.updateActFailed });
+    }
   }
 });
 
@@ -569,7 +579,7 @@ router.get("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) => {
  *                   type: string
  *                   example: energetic
  *       400:
- *         description: Missing adjective word
+ *         description: Missing adjective word or adjective already exists
  *       500:
  *         description: Failed to add adjective
  */
@@ -582,6 +592,10 @@ router.post("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) => {
     const newAdjective = await addAdjective(word);
     res.status(201).json(newAdjective);
   } catch (err) {
+    if (err.code === "23505") {
+      // Duplicate entry error
+      res.status(400).json({ error: "Adjective already exists" });
+    }
     res.status(500).json({ error: messages.addAdjFailed });
   }
 });
@@ -668,6 +682,8 @@ router.delete("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) =>
  *                   example: cheerful
  *       400:
  *         description: Missing new word
+ *       404:
+ *         description: Adjective not found or no changes made
  *       500:
  *         description: Failed to update adjective
  */
@@ -681,7 +697,14 @@ router.patch("/isa-be/ISA_BE/adjectives/:id", authenticateUser, async (req, res)
     const updated = await updateAdjective(id, word);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: messages.updateAdjFailed });
+    if (err.code === "23505") {
+      // Duplicate entry error
+      res.status(400).json({ error: "Adjective already exists" });
+    } else if (err.code === "NO_ROWS_UPDATED") {
+      res.status(404).json({ error: "Adjective not found or no changes made" });
+    } else {
+      res.status(500).json({ error: messages.updateAdjFailed });
+    }
   }
 });
 
