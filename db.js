@@ -47,7 +47,6 @@ export async function getUserByEmail(email) {
 export async function createUser(email, password_hash) {
   try {
     validateEmail(email);
-    validateInput(email);
     validateInput(password_hash);
     const client = await pool.connect();
     const query =
