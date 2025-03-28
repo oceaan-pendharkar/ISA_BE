@@ -30,7 +30,7 @@ export function validateEmail(email) {
 export function validateWord(word) {
   console.log("validating word: " + word);
   const wordRegex = /[a-zA-Z]+/;
-  if (!wordRegex.test(email)) {
+  if (!wordRegex.test(word)) {
     throw new Error("Invalid word format.");
   }
 }

@@ -378,7 +378,7 @@ router.get("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) => {
  *                 name:
  *                   type: string
  *       400:
- *         description: Missing activity name
+ *         description: Missing activity name or activity already exists
  *       500:
  *         description: Failed to add activity
  */
@@ -391,7 +391,13 @@ router.post("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) => {
     const newActivity = await addActivity(name);
     res.status(201).json(newActivity);
   } catch (err) {
-    res.status(500).json({ error: messages.addActFailed });
+    //23505 is a postgres error code for duplicate entry
+    if (err.code === "23505") {
+      // Duplicate entry error
+      res.status(400).json({ error: "Activity already exists" });
+    } else {
+      res.status(500).json({ error: "Failed to add activity" });
+    }
   }
 });
 
