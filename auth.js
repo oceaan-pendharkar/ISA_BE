@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { messages } from "./messages.js";
+import { messages } from "./messages/en.js";
 
 export const authenticateUser = (req, res, next) => {
   let decoded;
