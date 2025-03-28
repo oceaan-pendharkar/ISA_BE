@@ -1,0 +1,21 @@
+export const messages = {
+    unauthorized: "Unauthorized access.",
+    userNotFound: "User not found",
+    userNotCreated: "Error creating user",
+    invalidPassword: "Invalid password",
+    missingFields: "Missing fields",
+    missingSongFields: "Missing fields: need activity, adjective1, adjective2",
+    missingName: "Missing activity name",
+    missingAdj: "Missing adjective word",
+    missingWord: "Missing new word", 
+    fileNotFound: "File not found",
+    streamFailed: "Failed to stream song",
+    fetchActFailed: "Failed to fetch activities",
+    fetchAdjFailed: "Failed to fetch adjectives",
+    addActFailed: "Failed to add activity",
+    addAdjFailed: "Failed to add adjective",
+    deleteActFailed: "Failed to delete activity",
+    deleteAdjFailed: "Failed to delete adjective",
+    updateActFailed: "Failed to update activity",
+    updateAdjFailed: "Failed to update adjective"
+}
