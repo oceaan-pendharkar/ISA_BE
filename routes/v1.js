@@ -16,8 +16,10 @@ import {
   updateActivity,
   updateAdjective,
 } from "../db.js";
+
 import { generateSong, saveSongToDatabase, SONGS_DIR } from "../song.js";
 import { authenticateUser } from "../auth.js";
+import { messages } from "./messages.js";
 
 const router = express.Router();
 const saltRounds = 12;
@@ -78,7 +80,7 @@ router.post("/isa-be/ISA_BE/login", async (req, res) => {
   console.log("Received login request:", req.body); // Debugging log
 
   const user = await getUserByEmail(req.body.email);
-  if (!user) return res.status(404).json({ error: "User not found" });
+  if (!user) return res.status(404).json({ error: messages.userNotFound }); 
 
   // Check hashed password
   const passwordCheck = await bcrypt.compare(
@@ -86,7 +88,7 @@ router.post("/isa-be/ISA_BE/login", async (req, res) => {
     user.password_hash
   );
   if (!passwordCheck)
-    return res.status(401).json({ error: "Invalid password" });
+    return res.status(401).json({ error: messages.invalidPassword });
 
   // Prints the bcypt hash
   console.log(user.password_hash);
@@ -164,7 +166,7 @@ router.post("/isa-be/ISA_BE/register", async (req, res) => {
   console.log("Received login request:", req.body); // Debugging log
 
   if (!email || !password)
-    return res.status(400).json({ error: "Missing fields" });
+    return res.status(400).json({ error: messages.missingFields });
 
   try {
     // Hash entered password
@@ -175,7 +177,7 @@ router.post("/isa-be/ISA_BE/register", async (req, res) => {
     console.log("new user registered: ", newUser);
     res.json(newUser);
   } catch (err) {
-    res.status(500).json({ error: "Error creating user" });
+    res.status(500).json({ error: messages.userNotCreated });
   }
 });
 
@@ -225,7 +227,7 @@ router.get("/isa-be/ISA_BE/create-song", async (req, res) => {
 
     if (!activity || !adjective1 || !adjective2) {
       return res.status(400).json({
-        error: "Missing fields: need activity, adjective1, adjective2",
+        error: messages.missingSongFields,
       });
     }
 
@@ -291,7 +293,7 @@ router.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
     const filePath = path.join("songs", fileName); // Adjust path if needed
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "File not found!!" });
+      return res.status(404).json({ error: messages.fileNotFound });
     }
 
     res.setHeader("Content-Type", "audio/wav");
@@ -302,7 +304,7 @@ router.get("/isa-be/ISA_BE/songs/:fileName", async (req, res) => {
     fileStream.pipe(res);
   } catch (err) {
     console.error("Error streaming song:", err.message);
-    res.status(500).json({ error: "Failed to stream song" });
+    res.status(500).json({ error: messages.streamFailed });
   }
 });
 
@@ -336,7 +338,7 @@ router.get("/isa-be/ISA_BE/activities", async (req, res) => {
     const activities = await fetchActivities();
     res.json(activities);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch activities" });
+    res.status(500).json({ error: messages.fetchActFailed });
   }
 });
 
@@ -378,13 +380,13 @@ router.get("/isa-be/ISA_BE/activities", async (req, res) => {
 // Add an activity
 router.post("/isa-be/ISA_BE/activities", async (req, res) => {
   const { name } = req.body;
-  if (!name) return res.status(400).json({ error: "Missing activity name" });
+  if (!name) return res.status(400).json({ error: messages.missingName });
 
   try {
     const newActivity = await addActivity(name);
     res.status(201).json(newActivity);
   } catch (err) {
-    res.status(500).json({ error: "Failed to add activity" });
+    res.status(500).json({ error: messages.addActFailed });
   }
 });
 
@@ -417,13 +419,13 @@ router.post("/isa-be/ISA_BE/activities", async (req, res) => {
 // Delete activity by name
 router.delete("/isa-be/ISA_BE/activities", async (req, res) => {
   const { name } = req.body;
-  if (!name) return res.status(400).json({ error: "Missing activity name" });
+  if (!name) return res.status(400).json({ error: messages.missingName });
 
   try {
     await deleteActivityByName(name);
     res.status(204).end();
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete activity" });
+    res.status(500).json({ error: messages.deleteActFailed });
   }
 });
 
@@ -476,13 +478,13 @@ router.delete("/isa-be/ISA_BE/activities", async (req, res) => {
 router.patch("/isa-be/ISA_BE/activities/:id", async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
-  if (!name) return res.status(400).json({ error: "Missing new name" });
+  if (!name) return res.status(400).json({ error: messages.missingName });
 
   try {
     const updated = await updateActivity(id, name);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: "Failed to update activity" });
+    res.status(500).json({ error: messages.updateActFailed });
   }
 });
 
@@ -518,7 +520,7 @@ router.get("/isa-be/ISA_BE/adjectives", async (req, res) => {
     const adjectives = await fetchAdjectives();
     res.json(adjectives);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch adjectives" });
+    res.status(500).json({ error: messages.fetchAdjFailed });
   }
 });
 
@@ -563,13 +565,13 @@ router.get("/isa-be/ISA_BE/adjectives", async (req, res) => {
 // Add an adjective
 router.post("/isa-be/ISA_BE/adjectives", async (req, res) => {
   const { word } = req.body;
-  if (!word) return res.status(400).json({ error: "Missing adjective word" });
+  if (!word) return res.status(400).json({ error: messages.missingAdj });
 
   try {
     const newAdjective = await addAdjective(word);
     res.status(201).json(newAdjective);
   } catch (err) {
-    res.status(500).json({ error: "Failed to add adjective" });
+    res.status(500).json({ error: messages.addAdjFailed });
   }
 });
 
@@ -603,13 +605,13 @@ router.post("/isa-be/ISA_BE/adjectives", async (req, res) => {
 // Delete adjective by word
 router.delete("/isa-be/ISA_BE/adjectives", async (req, res) => {
   const { word } = req.body;
-  if (!word) return res.status(400).json({ error: "Missing adjective word" });
+  if (!word) return res.status(400).json({ error: messages.missingAdj });
 
   try {
     await deleteAdjectiveByWord(word);
     res.status(204).end();
   } catch (err) {
-    res.status(500).json({ error: "Failed to delete adjective" });
+    res.status(500).json({ error: messages.deleteAdjFailed });
   }
 });
 
@@ -662,13 +664,13 @@ router.delete("/isa-be/ISA_BE/adjectives", async (req, res) => {
 router.patch("/isa-be/ISA_BE/adjectives/:id", async (req, res) => {
   const { id } = req.params;
   const { word } = req.body;
-  if (!word) return res.status(400).json({ error: "Missing new word" });
+  if (!word) return res.status(400).json({ error: messages.missingWord });
 
   try {
     const updated = await updateAdjective(id, word);
     res.json(updated);
   } catch (err) {
-    res.status(500).json({ error: "Failed to update adjective" });
+    res.status(500).json({ error: messages.updateAdjFailed });
   }
 });
 
@@ -712,7 +714,7 @@ router.post("/isa-be/ISA_BE/logout", async (req, res) => {
   });
 
   console.log("Logout successful"); // Debugging log
-  res.status(200).json({ success: true });
+  res.json({ success: true });
 });
 
 /**
