@@ -82,9 +82,9 @@ router.post("/isa-be/ISA_BE/login", async (req, res) => {
   try {
     user = await getUserByEmail(req.body.email);
     console.log("user: " + user);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) return res.status(404).json({ error: messages.userNotFound });
   } catch (err) {
-    return res.status(500).json("Error logging in user");
+    return res.status(500).json({ error: messages.userNotLoggedIn });
   }
 
   // Check hashed password
@@ -292,26 +292,30 @@ router.get("/isa-be/ISA_BE/create-song", authenticateUser, async (req, res) => {
  *         description: Failed to stream the song
  */
 // Serve songs
-router.get("/isa-be/ISA_BE/songs/:fileName", authenticateUser, async (req, res) => {
-  try {
-    const fileName = req.params.fileName;
-    const filePath = path.join("songs", fileName); // Adjust path if needed
+router.get(
+  "/isa-be/ISA_BE/songs/:fileName",
+  authenticateUser,
+  async (req, res) => {
+    try {
+      const fileName = req.params.fileName;
+      const filePath = path.join("songs", fileName); // Adjust path if needed
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: messages.fileNotFound });
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ error: messages.fileNotFound });
+      }
+
+      res.setHeader("Content-Type", "audio/wav");
+      res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
+
+      // Create a read stream and pipe it to the response
+      const fileStream = fs.createReadStream(filePath);
+      fileStream.pipe(res);
+    } catch (err) {
+      console.error("Error streaming song:", err.message);
+      res.status(500).json({ error: messages.streamFailed });
     }
-
-    res.setHeader("Content-Type", "audio/wav");
-    res.setHeader("Content-Disposition", `inline; filename="${fileName}"`);
-
-    // Create a read stream and pipe it to the response
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
-  } catch (err) {
-    console.error("Error streaming song:", err.message);
-    res.status(500).json({ error: messages.streamFailed });
   }
-});
+);
 
 /**
  * @swagger
@@ -394,9 +398,9 @@ router.post("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) => {
     //23505 is a postgres error code for duplicate entry
     if (err.code === "23505") {
       // Duplicate entry error
-      res.status(400).json({ error: "Activity already exists" });
+      res.status(400).json({ error: messages.activityExists });
     } else {
-      res.status(500).json({ error: "Failed to add activity" });
+      res.status(500).json({ error: messages.addActFailed });
     }
   }
 });
@@ -428,17 +432,21 @@ router.post("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) => {
  *         description: Failed to delete activity
  */
 // Delete activity by name
-router.delete("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) => {
-  const { name } = req.body;
-  if (!name) return res.status(400).json({ error: messages.missingName });
+router.delete(
+  "/isa-be/ISA_BE/activities",
+  authenticateUser,
+  async (req, res) => {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: messages.missingName });
 
-  try {
-    await deleteActivityByName(name);
-    res.status(204).end();
-  } catch (err) {
-    res.status(500).json({ error: messages.deleteActFailed });
+    try {
+      await deleteActivityByName(name);
+      res.status(204).end();
+    } catch (err) {
+      res.status(500).json({ error: messages.deleteActFailed });
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -488,26 +496,30 @@ router.delete("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) =>
  *         description: Failed to update activity
  */
 // Update activity by ID
-router.patch("/isa-be/ISA_BE/activities/:id", authenticateUser, async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
-  if (!name) return res.status(400).json({ error: messages.missingName });
+router.patch(
+  "/isa-be/ISA_BE/activities/:id",
+  authenticateUser,
+  async (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: messages.missingName });
 
-  try {
-    const updated = await updateActivity(id, name);
-    res.json(updated);
-  } catch (err) {
-    //23505 is a postgres error code for duplicate entry
-    if (err.code === "23505") {
-      // Duplicate entry error
-      res.status(400).json({ error: "Activity already exists" });
-    } else if (err.code === "NO_ROWS_UPDATED") {
-      res.status(404).json({ error: "Activity not found or no changes made" });
-    } else {
-      res.status(500).json({ error: messages.updateActFailed });
+    try {
+      const updated = await updateActivity(id, name);
+      res.json(updated);
+    } catch (err) {
+      //23505 is a postgres error code for duplicate entry
+      if (err.code === "23505") {
+        // Duplicate entry error
+        res.status(400).json({ error: messages.activityExists });
+      } else if (err.code === "NO_ROWS_UPDATED") {
+        res.status(404).json({ error: messages.activityNotFound });
+      } else {
+        res.status(500).json({ error: messages.updateActFailed });
+      }
     }
   }
-});
+);
 
 /**
  * @swagger
@@ -594,7 +606,7 @@ router.post("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) => {
   } catch (err) {
     if (err.code === "23505") {
       // Duplicate entry error
-      res.status(400).json({ error: "Adjective already exists" });
+      res.status(400).json({ error: messages.adjectiveExists });
     }
     res.status(500).json({ error: messages.addAdjFailed });
   }
@@ -628,17 +640,21 @@ router.post("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) => {
  *         description: Failed to delete adjective
  */
 // Delete adjective by word
-router.delete("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) => {
-  const { word } = req.body;
-  if (!word) return res.status(400).json({ error: messages.missingAdj });
+router.delete(
+  "/isa-be/ISA_BE/adjectives",
+  authenticateUser,
+  async (req, res) => {
+    const { word } = req.body;
+    if (!word) return res.status(400).json({ error: messages.missingAdj });
 
-  try {
-    await deleteAdjectiveByWord(word);
-    res.status(204).end();
-  } catch (err) {
-    res.status(500).json({ error: messages.deleteAdjFailed });
+    try {
+      await deleteAdjectiveByWord(word);
+      res.status(204).end();
+    } catch (err) {
+      res.status(500).json({ error: messages.deleteAdjFailed });
+    }
   }
-});
+);
 
 /**
  * @swagger
@@ -688,25 +704,29 @@ router.delete("/isa-be/ISA_BE/adjectives", authenticateUser, async (req, res) =>
  *         description: Failed to update adjective
  */
 // Update adjective by ID
-router.patch("/isa-be/ISA_BE/adjectives/:id", authenticateUser, async (req, res) => {
-  const { id } = req.params;
-  const { word } = req.body;
-  if (!word) return res.status(400).json({ error: messages.missingWord });
+router.patch(
+  "/isa-be/ISA_BE/adjectives/:id",
+  authenticateUser,
+  async (req, res) => {
+    const { id } = req.params;
+    const { word } = req.body;
+    if (!word) return res.status(400).json({ error: messages.missingWord });
 
-  try {
-    const updated = await updateAdjective(id, word);
-    res.json(updated);
-  } catch (err) {
-    if (err.code === "23505") {
-      // Duplicate entry error
-      res.status(400).json({ error: "Adjective already exists" });
-    } else if (err.code === "NO_ROWS_UPDATED") {
-      res.status(404).json({ error: "Adjective not found or no changes made" });
-    } else {
-      res.status(500).json({ error: messages.updateAdjFailed });
+    try {
+      const updated = await updateAdjective(id, word);
+      res.json(updated);
+    } catch (err) {
+      if (err.code === "23505") {
+        // Duplicate entry error
+        res.status(400).json({ error: messages.adjectiveExists });
+      } else if (err.code === "NO_ROWS_UPDATED") {
+        res.status(404).json({ error: messages.adjectiveNotFound });
+      } else {
+        res.status(500).json({ error: messages.updateAdjFailed });
+      }
     }
   }
-});
+);
 
 /**
  * @swagger
