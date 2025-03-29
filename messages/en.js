@@ -23,4 +23,5 @@ export const messages = {
   activityNotFound: "Activity not found or no changes made",
   adjectiveExists: "Adjective already exists",
   adjectiveNotFound: "Adjective not found or no changes made",
+  wrongEmailFormat: "Wrong email format",
 };

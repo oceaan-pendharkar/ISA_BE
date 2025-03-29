@@ -28,13 +28,15 @@ export function validateEmail(email) {
   //then ends with 1 or more chars that are not space or @
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    throw new Error("Invalid email format.");
+    let error = new Error("Invalid email format.");
+    error.code = "WRONG_EMAIL_FORMAT"; // Custom error code
+    throw error;
   }
 }
 
 export function validateWord(word) {
   console.log("validating word: " + word);
-  const wordRegex = /[a-zA-Z]+/;
+  const wordRegex = /^[a-zA-Z]+$/;
   if (!wordRegex.test(word)) {
     throw new Error("Invalid word format.");
   }
@@ -42,7 +44,7 @@ export function validateWord(word) {
 
 export function validateNumber(num) {
   console.log("validating number: " + num);
-  const numRegex = /[0-9]+/;
+  const numRegex = /^[0-9]+$/;
   if (!numRegex.test(num)) {
     throw new Error("Invalid number format.");
   }

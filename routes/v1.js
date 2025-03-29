@@ -84,7 +84,11 @@ router.post("/isa-be/ISA_BE/login", async (req, res) => {
     console.log("user: " + user);
     if (!user) return res.status(404).json({ error: messages.userNotFound });
   } catch (err) {
-    return res.status(500).json({ error: messages.userNotLoggedIn });
+    if (err.code === "WRONG_EMAIL_FORMAT") {
+      res.status(404).json({ error: messages.wrongEmailFormat });
+    } else {
+      return res.status(500).json({ error: messages.userNotLoggedIn });
+    }
   }
 
   // Check hashed password
@@ -382,7 +386,7 @@ router.get("/isa-be/ISA_BE/activities", authenticateUser, async (req, res) => {
  *                 name:
  *                   type: string
  *       400:
- *         description: Missing activity name or activity already exists
+ *         description: Missing activity name
  *       500:
  *         description: Failed to add activity
  */
