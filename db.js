@@ -1,5 +1,12 @@
+//ChatGPT was used to assist with this file
 import dotenv from "dotenv";
 import pkg from "pg";
+import {
+  validateEmail,
+  validateInput,
+  validateNumber,
+  validateWord,
+} from "./input.js";
 
 dotenv.config();
 
@@ -17,6 +24,7 @@ const pool = new Pool({
  */
 export async function getUserByEmail(email) {
   try {
+    validateEmail(email);
     const client = await pool.connect();
     const query =
       "SELECT id, email, password_hash, role FROM users WHERE LOWER(email) = LOWER($1)";
@@ -37,6 +45,8 @@ export async function getUserByEmail(email) {
  */
 export async function createUser(email, password_hash) {
   try {
+    validateEmail(email);
+    validateInput(password_hash);
     const client = await pool.connect();
     const query =
       "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email";
@@ -111,6 +121,8 @@ export async function fetchAdjectives() {
  */
 export async function addActivity(name) {
   try {
+    validateWord(name);
+    validateInput(name);
     const client = await pool.connect();
     const query = "INSERT INTO activities (name) VALUES ($1) RETURNING *";
     const { rows } = await client.query(query, [name]);
@@ -134,6 +146,8 @@ export async function addActivity(name) {
  */
 export async function addAdjective(word) {
   try {
+    validateWord(word);
+    validateInput(word);
     const client = await pool.connect();
     const query = "INSERT INTO adjectives (word) VALUES ($1) RETURNING *";
     const { rows } = await client.query(query, [word]);
@@ -154,6 +168,8 @@ export async function addAdjective(word) {
  */
 export async function deleteActivityByName(name) {
   try {
+    validateWord(name);
+    validateInput(name);
     const client = await pool.connect();
     await client.query("DELETE FROM activities WHERE name = $1", [name]);
     client.release();
@@ -172,6 +188,8 @@ export async function deleteActivityByName(name) {
  */
 export async function deleteAdjectiveByWord(word) {
   try {
+    validateWord(word);
+    validateInput(word);
     const client = await pool.connect();
     await client.query("DELETE FROM adjectives WHERE word = $1", [word]);
     client.release();
@@ -194,10 +212,22 @@ export async function deleteAdjectiveByWord(word) {
  */
 export async function updateActivity(id, newName) {
   try {
+    validateNumber(id);
+    validateWord(newName);
+    validateInput(id);
+    validateInput(newName);
     const client = await pool.connect();
     const query = "UPDATE activities SET name = $1 WHERE id = $2 RETURNING *";
     const { rows } = await client.query(query, [newName, id]);
     client.release();
+    // Check if any rows were updated
+    if (rows.length === 0) {
+      const notFoundError = new Error(
+        "Adjective not found or no changes made."
+      );
+      notFoundError.code = "NO_ROWS_UPDATED"; // Custom error code
+      throw notFoundError;
+    }
     return rows[0];
   } catch (err) {
     console.error("Error updating activity:", err);
@@ -218,10 +248,22 @@ export async function updateActivity(id, newName) {
  */
 export async function updateAdjective(id, newWord) {
   try {
+    validateNumber(id);
+    validateWord(newWord);
+    validateInput(id);
+    validateInput(newWord);
     const client = await pool.connect();
     const query = "UPDATE adjectives SET word = $1 WHERE id = $2 RETURNING *";
     const { rows } = await client.query(query, [newWord, id]);
     client.release();
+    // Check if any rows were updated
+    if (rows.length === 0) {
+      const notFoundError = new Error(
+        "Adjective not found or no changes made."
+      );
+      notFoundError.code = "NO_ROWS_UPDATED"; // Custom error code
+      throw notFoundError;
+    }
     return rows[0];
   } catch (err) {
     console.error("Error updating adjective:", err);

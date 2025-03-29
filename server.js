@@ -1,3 +1,4 @@
+//ChatGPT was used to assist with this file
 import express from "express";
 import cors from "cors";
 import v1Routes from "./routes/v1.js";
@@ -7,7 +8,7 @@ import { swaggerSpec } from "./swagger.js";
 const app = express();
 app.use(
   cors({
-    origin: "https://isa-fe-252363189851.us-central1.run.app", // Replace with your frontend URL
+    origin: "https://isa-fe-252363189851.us-central1.run.app",
     credentials: true, // Allows cookies to be sent
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
