@@ -8,7 +8,7 @@ export const messages = {
     missingName: "Missing activity name",
     missingAdj: "Missing adjective word",
     missingWord: "Missing new word", 
-    fileNotFound: "File not found!!",
+    fileNotFound: "File not found",
     streamFailed: "Failed to stream song",
     fetchActFailed: "Failed to fetch activities",
     fetchAdjFailed: "Failed to fetch adjectives",
